@@ -79,7 +79,7 @@ app.get("/api/prices", async function (req, res) {
             .then((response2) => {
                 lowestBid = 9999999999999999999999999999999999999999999999
                 for (const auction of response2.data.auctions) {
-                    if(auction.highest_bid_amount < lowestBid){
+                    if(auction.highest_bid_amount < lowestBid && auction.highest_bid_amount != 0){
                         lowestBid = auction.highest_bid_amount
                     }
                 }
