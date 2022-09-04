@@ -42,7 +42,7 @@ app.get("/api/prices", async function (req, res) {
     res.send("Missing query field");
     return;
   }
-  let item = query.replace(" ","_").toUpperCase()
+  let item = query.split(" ").join("_").toUpperCase()
   if (!item) {
     res.send("L'object n'existe pas");
     return;
