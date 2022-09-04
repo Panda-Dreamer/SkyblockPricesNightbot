@@ -74,6 +74,10 @@ app.get("/api/prices", async function (req, res) {
         axios
         .get("https://api.slothpixel.me/api/skyblock/auctions?sortBy=starting_bid&id=" + item)
         .then((response) => {
+            if(response.data.matching_query == 0){
+                res.send(`Aucun item de ce type en vente`);
+                eturn;
+            }
             axios
             .get("https://api.slothpixel.me/api/skyblock/auctions?sortBy=highest_bid_amount&sortOrder=asc&id=" + item)
             .then((response2) => {
