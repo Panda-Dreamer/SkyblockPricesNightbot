@@ -36,12 +36,13 @@ function updateData() {
 // Function to handle the root path
 app.get("/api/prices", async function (req, res) {
   // Access the provided 'page' and 'limt' query parameters
+  // Access the provided 'page' and 'limt' query parameters
   let query = req.query.q;
   if (!query) {
     res.send("Missing query field");
     return;
   }
-  let item = items[query.toLowerCase()];
+  let item = item.replace(" ","_").toUpperCase()
   if (!item) {
     res.send("L'object n'existe pas");
     return;
@@ -70,22 +71,53 @@ app.get("/api/prices", async function (req, res) {
       }
     })
     .catch((error) => {
-      if (error.data.error) {
-        if (error.data.error == "Invalid itemId") {
-          res.send("L'object n'est pas vendu au bazar");
-          return;
-        } else {
-          res.send("Une erreur est survenue");
-          return;
-        }
-      }
-      res.send("Une erreur est survenue");
+      res.send("L'object n'est pas vendu au bazar");
       return;
     });
 });
 
+
+app.get("/api/ah", async function (req, res) {
+    // Access the provided 'page' and 'limt' query parameters
+    let query = req.query.q;
+    if (!query) {
+      res.send("Missing query field");
+      return;
+    }
+    let item = item.replace(" ","_").toUpperCase()
+    if (!item) {
+      res.send("L'object n'existe pas");
+      return;
+    }
+    console.log(item);
+  
+    axios
+      .get("https://api.slothpixel.me/api/skyblock/bazaar/" + item)
+      .then((response) => {
+        if (response.data.error) {
+          if (response.data.error == "Invalid itemId") {
+            res.send("L'object n'est pas vendu au bazar");
+            return;
+          } else {
+            res.send("Une erreur est survenue");
+            return;
+          }
+        } else {
+          let sum = response.data.quick_status;
+          if (!sum) {
+            res.send(`Impossible d'obtenir les prix pour cet objet`);
+            return;
+          }
+          res.send(`[${item.name}] Achat: ${sum.buyPrice.toString().split(".")[0]}, Vente: ${sum.sellPrice.toString().split(".")[0]}`);
+          return;
+        }
+      })
+      .catch((error) => {
+        res.send("L'object n'est pas vendu au bazar");
+        return;
+      });
+  });
+
 let server = app.listen(8000, function () {
   console.log("Server is listening on port 8000");
 });
-
-updateData();
