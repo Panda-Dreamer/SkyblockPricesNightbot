@@ -74,12 +74,12 @@ app.get("/api/prices", async function (req, res) {
         axios
         .get("https://api.slothpixel.me/api/skyblock/auctions?sortBy=starting_bid&id=" + item)
         .then((response) => {
-            if (!sum) {
-              res.send(`Impossible d'obtenir les prix pour cet objet`);
-              return;
-            }
-            res.send(`[${query}] En vente: ${response.data.matching_query}, Prix de départ le plus bas: ${response.data.auctions[response.data.auctions.length -1].starting_bid}`);
+            axios
+            .get("https://api.slothpixel.me/api/skyblock/auctions?sortBy=highest_bid_amount&id=" + item)
+            .then((response) => {
+            res.send(`[${query}] En vente: ${response.data.matching_query}, Prix de départ le plus bas: ${response.data.auctions[response.data.auctions.length -1].starting_bid}, Enchère la plus basse: ${response.data.auctions[response.data.auctions.length -1].highest_bid_amount}`);
             return;
+            })
         })
         .catch((error) => {
             res.send(`Impossible d'obtenir les prix pour cet objet`);
