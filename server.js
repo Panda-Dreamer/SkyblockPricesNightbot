@@ -71,8 +71,19 @@ app.get("/api/prices", async function (req, res) {
       }
     })
     .catch((error) => {
-      res.send("[Erreur] - L'object n'est pas vendu au bazar");
-      return;
+        axios
+        .get("https://api.slothpixel.me/api/skyblock/auctions?sortBy=starting_bid&id=" + item)
+        .then((response) => {
+            if (!sum) {
+              res.send(`Impossible d'obtenir les prix pour cet objet`);
+              return;
+            }
+            res.send(`[${query}] En vente: ${response.data.matching_query}, Prix de départ le plus bas: ${response.data.auctions[response.data.auctions.length -1].starting_bid}`);
+            return;
+        })
+        .catch((error) => {
+          
+        });
     });
 });
 
