@@ -75,9 +75,15 @@ app.get("/api/prices", async function (req, res) {
         .get("https://api.slothpixel.me/api/skyblock/auctions?sortBy=starting_bid&id=" + item)
         .then((response) => {
             axios
-            .get("https://api.slothpixel.me/api/skyblock/auctions?sortBy=highest_bid_amount&id=" + item)
+            .get("https://api.slothpixel.me/api/skyblock/auctions?sortBy=highest_bid_amount&sortOrder=asc&id=" + item)
             .then((response2) => {
-            res.send(`[${query}] En vente: ${response.data.matching_query}, Prix de départ le plus bas: ${response.data.auctions[response.data.auctions.length -1].starting_bid}, Enchère la plus basse: ${response2.data.auctions[response2.data.auctions.length -1].highest_bid_amount}`);
+                lowestBid = 9999999999999999999999999999999999999999999999
+                for (const auction of response2.data.auctions) {
+                    if(auction.highest_bid_amount < lowestBid){
+                        lowestBid = auction.highest_bid_amount
+                    }
+                }
+            res.send(`[${query}] En vente: ${response.data.matching_query}, Prix de départ le plus bas: ${response.data.auctions[response.data.auctions.length -1].starting_bid}, Enchère la plus basse: ${lowestBid}`);
             return;
             })
         })
