@@ -66,12 +66,12 @@ app.get("/api/prices", async function (req, res) {
           res.send(`Impossible d'obtenir les prix pour cet objet`);
           return;
         }
-        res.send(`[${item.name}] Achat: ${sum.buyPrice.toString().split(".")[0]}, Vente: ${sum.sellPrice.toString().split(".")[0]}`);
+        res.send(`[${query}] Achat: ${sum.buyPrice.toString().split(".")[0]}, Vente: ${sum.sellPrice.toString().split(".")[0]}`);
         return;
       }
     })
     .catch((error) => {
-      res.send("L'object n'est pas vendu au bazar");
+      res.send("[Erreur] - L'object n'est pas vendu au bazar");
       return;
     });
 });
