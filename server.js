@@ -66,7 +66,7 @@ app.get("/api/prices", async function (req, res) {
           res.send(`Impossible d'obtenir les prix pour cet objet`);
           return;
         }
-        res.send(`[${query}] Achat: ${sum.buyPrice.toString().split(".")[0]}, Vente: ${sum.sellPrice.toString().split(".")[0]}`);
+        res.send(`[${query}](Bazar) Achat: ${sum.buyPrice.toString().split(".")[0]}, Vente: ${sum.sellPrice.toString().split(".")[0]}`);
         return;
       }
     })
@@ -87,7 +87,7 @@ app.get("/api/prices", async function (req, res) {
                         lowestBid = auction.highest_bid_amount
                     }
                 }
-            res.send(`[${query}] En vente: ${response.data.matching_query}, Prix de départ le plus bas: ${response.data.auctions[response.data.auctions.length -1].starting_bid}, Enchère la plus basse: ${lowestBid}`);
+            res.send(`[${query}](AH) En vente: ${response.data.matching_query}, Prix de départ le plus bas: ${response.data.auctions[response.data.auctions.length -1].starting_bid}, Enchère la plus basse: ${lowestBid}`);
             return;
             })
         })
