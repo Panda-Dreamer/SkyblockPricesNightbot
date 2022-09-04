@@ -70,8 +70,8 @@ app.get("/api/prices", async function (req, res) {
       }
     })
     .catch((error) => {
-      if (response.data.error) {
-        if (response.data.error == "Invalid itemId") {
+      if (error.data.error) {
+        if (error.data.error == "Invalid itemId") {
           res.send("L'object n'est pas vendu au bazar");
           return;
         } else {
