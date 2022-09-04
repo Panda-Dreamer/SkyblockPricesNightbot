@@ -50,7 +50,7 @@ app.get("/api/prices", async function (req, res) {
   console.log(item);
 
   axios
-    .get("https://api.slothpixel.me/api/skyblock/bazaar/" + item.id)
+    .get("https://api.slothpixel.me/api/skyblock/bazaar/" + item)
     .then((response) => {
       if (response.data.error) {
         if (response.data.error == "Invalid itemId") {
