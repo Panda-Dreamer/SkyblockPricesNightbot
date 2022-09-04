@@ -82,7 +82,8 @@ app.get("/api/prices", async function (req, res) {
             return;
         })
         .catch((error) => {
-          
+            res.send(`Impossible d'obtenir les prix pour cet objet`);
+            return;
         });
     });
 });
