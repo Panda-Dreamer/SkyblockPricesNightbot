@@ -51,8 +51,8 @@ app.get("/api/prices", async function (req, res) {
   axios
     .get("https://api.slothpixel.me/api/skyblock/bazaar/" + item.id)
     .then((response) => {
-      if (response.error) {
-        if (response.error == "Invalid itemId") {
+      if (response.data.error) {
+        if (response.data.error == "Invalid itemId") {
           res.send("L'object n'est pas vendu au bazar");
           return;
         } else {
@@ -65,19 +65,27 @@ app.get("/api/prices", async function (req, res) {
           res.send(`Impossible d'obtenir les prix pour cet objet`);
           return;
         }
-        res.send(`[${item.name}] Achat: ${sum.buyPrice.split(".")[0]}, Vente: ${sum.sellPrice.split(".")[0]}`);
+        res.send(`[${item.name}] Achat: ${sum.buyPrice.toString().split(".")[0]}, Vente: ${sum.sellPrice.toString().split(".")[0]}`);
         return;
       }
     })
     .catch((error) => {
-      console.log(error);
+      if (response.data.error) {
+        if (response.data.error == "Invalid itemId") {
+          res.send("L'object n'est pas vendu au bazar");
+          return;
+        } else {
+          res.send("Une erreur est survenue");
+          return;
+        }
+      }
       res.send("Une erreur est survenue");
       return;
     });
 });
 
-let server = app.listen(8080, function () {
-  console.log("Server is listening on port 8080");
+let server = app.listen(8000, function () {
+  console.log("Server is listening on port 8000");
 });
 
 updateData();
