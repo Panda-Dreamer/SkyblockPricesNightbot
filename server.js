@@ -171,6 +171,7 @@ app.get("/api/prices", async function (req, res) {
   if(item){
 
     let lowprice = (item.lowest_highest_bid != 0) ? (item.lowest_highest_bid  == "99999999999999999999999999999999999999999" ? "" : "Enchère la plus basse: " + nFormatter(item.lowest_highest_bid) + ",") : ("Enchère la plus basse: " + nFormatter(item.lowest_starting_bid) + ",")
+    let highprice = (item.highest_highest_bid != "99999999999999999999999999999999999999999") ? (item.highest_highest_bid  == "99999999999999999999999999999999999999999" ? "" : "Enchère la plus haute: " + nFormatter(item.highest_highest_bid) + ",") : ("Enchère la plus haute: " + nFormatter(item.highest_starting_bid) + ",")
     ahstring = ` (AH) -  ${lowprice} ${item.highest_highest_bid  == "0" ? "" : "Enchère la plus haute: " + nFormatter(item.highest_highest_bid) +";"} Nombre d'enchères: ${nFormatter(item.amount,1)}`
   }
 
