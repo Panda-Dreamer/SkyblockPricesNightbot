@@ -45,10 +45,10 @@ function updateData() {
     .get("https://api.hypixel.net/skyblock/auctions?page=0", { headers: { "API-Key": "a29d3e80-9cfc-4e9f-9d31-0dbeb560ca8a" } })
     .then(async (response) => {
       let page_count = response.data.totalPages;
-      console.log("Page count:", page_count);
+      //console.log("Page count:", page_count);
       for (var i = 1; i < page_count; i++) {
         data = await RequestPage(i);
-        console.log(`Processing page n°${i}, Number of auctions: ${data.auctions.length}; Items processed: ${Object.entries(new_items).length}/${response.data.totalAuctions}`);
+        console.log(`Processing page n°${i}, Number of auctions: ${data.auctions.length}; Items processed: ${Object.entries(new_items).length}, Total auctions:${response.data.totalAuctions}`);
         if (data != false && data.success == true) {
           for (var ai = 0; ai < data.auctions.length; ai++) {
             let auction = data.auctions[ai];
