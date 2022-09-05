@@ -33,7 +33,7 @@ function updateData() {
   .get("https://api.hypixel.net/skyblock/bazaar", { headers: { "API-Key": "a29d3e80-9cfc-4e9f-9d31-0dbeb560ca8a" } })
   .then((response)=>{
     for (const [product_id, product] of Object.entries(response.data.products)) {
-      bzitems[product.product_id.replaceAll("_","").toLocaleLowerCase().split(":")[0]] = product
+      bzitems[product.product_id.replaceAll("_"," ").toLocaleLowerCase().split(":")[0]] = product
     }
   })
   .catch((error) =>{
