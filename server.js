@@ -48,7 +48,7 @@ function updateData() {
       //console.log("Page count:", page_count);
       for (var i = 1; i < page_count; i++) {
         data = await RequestPage(i);
-        console.log(`Processing page n°${i}, Number of auctions: ${data.auctions.length}; Items processed: ${Object.entries(new_items).length}, Total auctions:${response.data.totalAuctions}`);
+        process.stdout.write(`Processing page n°${i}, Number of auctions: ${data.auctions.length}; Items processed: ${Object.entries(new_items).length}, Total auctions:${response.data.totalAuctions}                  \re`);
         if (data != false && data.success == true) {
           for (var ai = 0; ai < data.auctions.length; ai++) {
             let auction = data.auctions[ai];
