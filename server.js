@@ -150,8 +150,8 @@ app.get("/api/prices", async function (req, res) {
   let item = items[query.toLocaleLowerCase()]
   let bzitem = bzitems[query.toLocaleLowerCase()]
 
-  //console.log(query.toLocaleLowerCase(),item)
-  //console.log(query.toLocaleLowerCase(),bzitem)
+  console.log(query.toLocaleLowerCase(),item)
+  console.log(query.toLocaleLowerCase(),bzitem)
 
   if((!item) && (!bzitem)){
     res.send("Pas d'item trouvé avec ce nom")
@@ -172,7 +172,7 @@ app.get("/api/prices", async function (req, res) {
 
     let lowprice = (item.lowest_highest_bid != 0) ? (item.lowest_highest_bid  == "99999999999999999999999999999999999999999" ? "" : "Enchère la plus basse: " + nFormatter(item.lowest_highest_bid) + ",") : ("Enchère la plus basse: " + nFormatter(item.lowest_starting_bid) + ",")
     let highprice = (item.highest_highest_bid != "99999999999999999999999999999999999999999") ? (item.highest_highest_bid  == "99999999999999999999999999999999999999999" ? "" : "Enchère la plus haute: " + nFormatter(item.highest_highest_bid) + ",") : ("Enchère la plus haute: " + nFormatter(item.highest_starting_bid) + ",")
-    ahstring = ` (AH) -  ${lowprice} ${item.highest_highest_bid  == "0" ? "" : "Enchère la plus haute: " + nFormatter(item.highest_highest_bid) +";"} Nombre d'enchères: ${nFormatter(item.amount,1)}`
+    ahstring = ` (AH) -  ${lowprice} ${highprice}`
   }
 
   if(ahstring!= "" && bzstring != ""){
