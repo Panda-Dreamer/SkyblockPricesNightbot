@@ -142,10 +142,10 @@ function updateData() {
       }
       for (const [itemName, item] of Object.entries(new_items)) {
         let sum = item.moy_hb.data.reduce((a, b) => a + b, 0);
-        last_updated_items.moy_hb.result = (sum / item.moy_hb.data.length) || 0;
+        new_items[itemName].moy_hb.result = (sum / item.moy_hb.data.length) || 0;
 
         sum = item.moy_sb.data.reduce((a, b) => a + b, 0);
-        last_updated_items.moy_sb.result = (sum / item.moy_sb.data.length) || 0;
+        new_items[itemName].moy_sb.result = (sum / item.moy_sb.data.length) || 0;
       }
       items = new_items;
       console.log("Items processed: ", Object.entries(items).length);
