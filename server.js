@@ -111,6 +111,11 @@ function updateData() {
           }
         }
       }
+      for (const [itemName, item] of Object.entries(items)) {
+        if(!new_items[itemName]){
+          new_items[itemName] = item
+        }
+      }
       items = new_items;
       console.log("Items processed: ", Object.entries(items).length);
       updating = false
@@ -150,8 +155,8 @@ app.get("/api/prices", async function (req, res) {
   let item = items[query.toLocaleLowerCase()]
   let bzitem = bzitems[query.toLocaleLowerCase()]
 
-  console.log(query.toLocaleLowerCase(),item)
-  console.log(query.toLocaleLowerCase(),bzitem)
+  //console.log(query.toLocaleLowerCase(),item)
+  //console.log(query.toLocaleLowerCase(),bzitem)
 
   if((!item) && (!bzitem)){
     res.send("Pas d'item trouvé avec ce nom")
