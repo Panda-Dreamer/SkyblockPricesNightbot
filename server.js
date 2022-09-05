@@ -185,5 +185,5 @@ app.get("/api/prices", async function (req, res) {
 let server = app.listen(8000, function () {
   console.log("Server is listening on port 8000");
   updateData();
-  setInterval(updateData, )
+  setInterval(updateData, 600000)
 });
