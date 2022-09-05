@@ -87,7 +87,23 @@ function updateData() {
                 amount: 1,
                 highest_starting_bid: auction.starting_bid,
                 highest_highest_bid: auction.highest_bid_amount || "0",
+
+                moy_sb: {
+                  data: []
+                },
+                moy_hb: {
+                  data: []
+                },
               };
+
+              if(auction.lowest_starting_bid){
+                new_items[auction.item_name.toLowerCase()].moy_sb.data.push(auction.lowest_starting_bid)
+              }
+
+              if(auction.highest_bid_amount && auction.highest_bid_amount != 0){
+                new_items[auction.item_name.toLowerCase()].moy_hb.data.push(auction.highest_bid_amount)
+              }
+
             } else {
               let current_item = new_items[auction.item_name.toLowerCase()];
               new_items[auction.item_name.toLowerCase()].amount = current_item.amount + 1;
@@ -107,6 +123,14 @@ function updateData() {
               if (current_item.highest_starting_bid < auction.highest_bid_amount) {
                 new_items[auction.item_name.toLowerCase()].highest_starting_bid = auction.highest_bid_amount;
               }
+
+              if(auction.lowest_starting_bid){
+                new_items[auction.item_name.toLowerCase()].moy_sb.data.push(auction.lowest_starting_bid)
+              }
+
+              if(auction.highest_bid_amount && auction.highest_bid_amount != 0){
+                new_items[auction.item_name.toLowerCase()].moy_hb.data.push(auction.highest_bid_amount)
+              }
             }
           }
         }
@@ -115,6 +139,13 @@ function updateData() {
         if(!new_items[itemName]){
           new_items[itemName] = item
         }
+      }
+      for (const [itemName, item] of Object.entries(new_items)) {
+        let sum = item.moy_hb.data.reduce((a, b) => a + b, 0);
+        last_updated_items.moy_hb.result = (sum / times.length) || 0;
+
+        sum = item.moy_sb.data.reduce((a, b) => a + b, 0);
+        last_updated_items.moy_sb.result = (sum / times.length) || 0;
       }
       items = new_items;
       console.log("Items processed: ", Object.entries(items).length);
@@ -175,7 +206,7 @@ app.get("/api/prices", async function (req, res) {
 
   if(item){
 
-    let lowprice = (item.lowest_highest_bid != 0) ? (item.lowest_highest_bid  == "99999999999999999999999999999999999999999" ? "" : "Enchère la plus basse: " + nFormatter(item.lowest_highest_bid) + ",") : ("Enchère la plus basse: " + nFormatter(item.lowest_starting_bid) + ",")
+    let lowprice = `Prix moyen: ${nFormatter(item.moy_hb.result,1)}`
     let highprice = (item.highest_starting_bid > item.highest_highest_bid) ? ("Enchère la plus haute: " + nFormatter(item.highest_starting_bid) + ";") : ("Enchère la plus haute: " + nFormatter(item.highest_highest_bid) + ";")
     ahstring = ` (AH) -  ${lowprice} ${highprice}`
   }
