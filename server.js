@@ -45,10 +45,10 @@ function updateData() {
     .get("https://api.hypixel.net/skyblock/auctions?page=0", { headers: { "API-Key": "a29d3e80-9cfc-4e9f-9d31-0dbeb560ca8a" } })
     .then(async (response) => {
       let page_count = response.data.totalPages;
-      console.log("Page count:", page_count);
+      //console.log("Page count:", page_count);
       for (var i = 1; i < page_count; i++) {
         data = await RequestPage(i);
-        console.log(`Processing page n°${i}, Number of auctions: ${data.auctions.length}; Items processed: ${Object.entries(new_items).length}/${response.data.totalAuctions}`);
+        //console.log(`Processing page n°${i}, Number of auctions: ${data.auctions.length}; Items processed: ${Object.entries(new_items).length}/${response.data.totalAuctions}`);
         if (data != false && data.success == true) {
           for (var ai = 0; ai < data.auctions.length; ai++) {
             let auction = data.auctions[ai];
@@ -160,18 +160,18 @@ app.get("/api/prices", async function (req, res) {
 
   let bzstring = ``
   let ahstring = ``
-  let queryString = `[${query}] - `
+  let queryString = `[${query}]`
   let separator = ""
 
   if(bzitem){
-    bzstring = ` (BZ): Acheter:${nFormatter(bzitem.quick_status.buyPrice,1)},  Vendre:${nFormatter(bzitem.quick_status.sellPrice,1)}`
+    bzstring = ` (BZ) - Acheter: ${nFormatter(bzitem.quick_status.buyPrice,1)},  Vendre: ${nFormatter(bzitem.quick_status.sellPrice,1)}`
   }
   
 
   if(item){
 
-    let lowprice = (item.lowest_highest_bid != 0 && item.lowest_highest_bid  != "99999999999999999999999999999999999999999") ? (item.lowest_highest_bid  == "99999999999999999999999999999999999999999" ? "" : "Enchère la plus basse:" + nFormatter(item.lowest_highest_bid) + ",") : ("Enchère la plus basse:" + nFormatter(item.lowest_starting_bid) + ",")
-    ahstring = ` (AH): ${lowprice} ${item.highest_highest_bid  == "0" ? "" : "Enchère la plus haute:" + nFormatter(item.highest_highest_bid) +";"} Nombre d'enchères: ${nFormatter(item.amount,1)}`
+    let lowprice = (item.lowest_highest_bid != 0 && item.lowest_highest_bid  != "99999999999999999999999999999999999999999") ? (item.lowest_highest_bid  == "99999999999999999999999999999999999999999" ? "" : "Enchère la plus basse: " + nFormatter(item.lowest_highest_bid) + ",") : ("Enchère la plus basse: " + nFormatter(item.lowest_starting_bid) + ",")
+    ahstring = ` (AH) -  ${lowprice} ${item.highest_highest_bid  == "0" ? "" : "Enchère la plus haute: " + nFormatter(item.highest_highest_bid) +";"} Nombre d'enchères: ${nFormatter(item.amount,1)}`
   }
 
   if(ahstring!= "" && bzstring != ""){
@@ -185,4 +185,5 @@ app.get("/api/prices", async function (req, res) {
 let server = app.listen(8000, function () {
   console.log("Server is listening on port 8000");
   updateData();
+  setInterval(updateData, )
 });
