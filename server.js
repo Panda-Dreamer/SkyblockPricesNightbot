@@ -28,17 +28,16 @@ function RequestPage(number) {
 }
 
 function updateData() {
-
   axios
-  .get("https://api.hypixel.net/skyblock/bazaar", { headers: { "API-Key": "a29d3e80-9cfc-4e9f-9d31-0dbeb560ca8a" } })
-  .then((response)=>{
-    for (const [product_id, product] of Object.entries(response.data.products)) {
-      bzitems[product.product_id.replaceAll("_"," ").toLocaleLowerCase().split(":")[0]] = product
-    }
-  })
-  .catch((error) =>{
-    console.log(error)
-  })
+    .get("https://api.hypixel.net/skyblock/bazaar", { headers: { "API-Key": "a29d3e80-9cfc-4e9f-9d31-0dbeb560ca8a" } })
+    .then((response) => {
+      for (const [product_id, product] of Object.entries(response.data.products)) {
+        bzitems[product.product_id.replaceAll("_", " ").toLocaleLowerCase().split(":")[0]] = product;
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+    });
   updating = true;
   new_items = {};
   axios
@@ -89,21 +88,20 @@ function updateData() {
                 highest_highest_bid: auction.highest_bid_amount || "0",
 
                 moy_sb: {
-                  data: []
+                  data: [],
                 },
                 moy_hb: {
-                  data: []
+                  data: [],
                 },
               };
 
-              if(auction.lowest_starting_bid){
-                new_items[auction.item_name.toLowerCase()].moy_sb.data.push(auction.lowest_starting_bid)
+              if (auction.lowest_starting_bid) {
+                new_items[auction.item_name.toLowerCase()].moy_sb.data.push(auction.lowest_starting_bid);
               }
 
-              if(auction.highest_bid_amount && auction.highest_bid_amount != 0){
-                new_items[auction.item_name.toLowerCase()].moy_hb.data.push(auction.highest_bid_amount)
+              if (auction.highest_bid_amount && auction.highest_bid_amount != 0) {
+                new_items[auction.item_name.toLowerCase()].moy_hb.data.push(auction.highest_bid_amount);
               }
-
             } else {
               let current_item = new_items[auction.item_name.toLowerCase()];
               new_items[auction.item_name.toLowerCase()].amount = current_item.amount + 1;
@@ -124,32 +122,38 @@ function updateData() {
                 new_items[auction.item_name.toLowerCase()].highest_starting_bid = auction.highest_bid_amount;
               }
 
-              if(auction.lowest_starting_bid){
-                new_items[auction.item_name.toLowerCase()].moy_sb.data.push(auction.lowest_starting_bid)
+              if (auction.starting_bid) {
+                new_items[auction.item_name.toLowerCase()].moy_sb.data.push(auction.starting_bid);
               }
 
-              if(auction.highest_bid_amount && auction.highest_bid_amount != 0){
-                new_items[auction.item_name.toLowerCase()].moy_hb.data.push(auction.highest_bid_amount)
+              if (auction.bin == false) {
+                if (auction.highest_bid_amount && auction.highest_bid_amount != 0) {
+                  new_items[auction.item_name.toLowerCase()].moy_hb.data.push(auction.highest_bid_amount);
+                }
+              }else{
+                if (auction.starting_bid && auction.starting_bid != 0) {
+                  new_items[auction.item_name.toLowerCase()].moy_hb.data.push(auction.starting_bid);
+                }
               }
             }
           }
         }
       }
       for (const [itemName, item] of Object.entries(items)) {
-        if(!new_items[itemName]){
-          new_items[itemName] = item
+        if (!new_items[itemName]) {
+          new_items[itemName] = item;
         }
       }
       for (const [itemName, item] of Object.entries(new_items)) {
         let sum = item.moy_hb.data.reduce((a, b) => a + b, 0);
-        new_items[itemName].moy_hb.result = (sum / item.moy_hb.data.length) || 0;
+        new_items[itemName].moy_hb.result = sum / item.moy_hb.data.length;
 
         sum = item.moy_sb.data.reduce((a, b) => a + b, 0);
-        new_items[itemName].moy_sb.result = (sum / item.moy_sb.data.length) || 0;
+        new_items[itemName].moy_sb.result = sum / item.moy_sb.data.length;
       }
       items = new_items;
       console.log("Items processed: ", Object.entries(items).length);
-      updating = false
+      updating = false;
     })
     .catch((error) => {
       console.log(error);
@@ -165,62 +169,63 @@ function nFormatter(num, digits) {
     { value: 1e9, symbol: "G" },
     { value: 1e12, symbol: "T" },
     { value: 1e15, symbol: "P" },
-    { value: 1e18, symbol: "E" }
+    { value: 1e18, symbol: "E" },
   ];
   const rx = /\.0+$|(\.[0-9]*[1-9])0+$/;
-  var item = lookup.slice().reverse().find(function(item) {
-    return num >= item.value;
-  });
+  var item = lookup
+    .slice()
+    .reverse()
+    .find(function (item) {
+      return num >= item.value;
+    });
   return item ? (num / item.value).toFixed(digits).replace(rx, "$1") + item.symbol : "0";
 }
 
 // Function to handle the root path
 app.get("/api/prices", async function (req, res) {
-  let query = req.query.q
+  let query = req.query.q;
 
-  if(!query){
-    res.send("Utilisation: ![cmd] <nom de l'objet>")
-    return
+  if (!query) {
+    res.send("Utilisation: ![cmd] <nom de l'objet>");
+    return;
   }
 
-  let item = items[query.toLocaleLowerCase()]
-  let bzitem = bzitems[query.toLocaleLowerCase()]
+  let item = items[query.toLocaleLowerCase()];
+  let bzitem = bzitems[query.toLocaleLowerCase()];
 
-  //console.log(query.toLocaleLowerCase(),item)
-  //console.log(query.toLocaleLowerCase(),bzitem)
+  //console.log(query.toLocaleLowerCase(), item);
+  //console.log(query.toLocaleLowerCase(), bzitem);
 
-  if((!item) && (!bzitem)){
-    res.send("Pas d'item trouvé avec ce nom")
-    return
+  if (!item && !bzitem) {
+    res.send("Pas d'item trouvé avec ce nom");
+    return;
   }
 
-  let bzstring = ``
-  let ahstring = ``
-  let queryString = `[${query}]`
-  let separator = ""
+  let bzstring = ``;
+  let ahstring = ``;
+  let queryString = `[${query}]`;
+  let separator = "";
 
-  if(bzitem){
-    bzstring = ` (BZ) - Acheter: ${nFormatter(bzitem.quick_status.buyPrice,1)},  Vendre: ${nFormatter(bzitem.quick_status.sellPrice,1)}`
-  }
-  
-
-  if(item){
-
-    let lowprice = `Prix moyen: ${nFormatter(item.moy_hb.result,1)}`
-    let highprice = (item.highest_starting_bid > item.highest_highest_bid) ? ("Enchère la plus haute: " + nFormatter(item.highest_starting_bid) + ";") : ("Enchère la plus haute: " + nFormatter(item.highest_highest_bid) + ";")
-    ahstring = ` (AH) -  ${lowprice} ${highprice}`
+  if (bzitem) {
+    bzstring = ` (BZ) - Acheter: ${nFormatter(bzitem.quick_status.buyPrice, 1)},  Vendre: ${nFormatter(bzitem.quick_status.sellPrice, 1)}`;
   }
 
-  if(ahstring!= "" && bzstring != ""){
-    separator = "||"
+  if (item) {
+    let lowprice = `Prix moyen: ${nFormatter(item.moy_hb.result, 1)}`;
+    let highprice = item.highest_starting_bid > item.highest_highest_bid ? "Enchère la plus haute: " + nFormatter(item.highest_starting_bid) + ";" : "Enchère la plus haute: " + nFormatter(item.highest_highest_bid) + ";";
+    ahstring = ` (AH) -  ${lowprice} ${highprice}`;
   }
 
-  finalString = queryString + bzstring + separator +ahstring
-  res.send(finalString)
+  if (ahstring != "" && bzstring != "") {
+    separator = "||";
+  }
+
+  finalString = queryString + bzstring + separator + ahstring;
+  res.send(finalString);
 });
 
 let server = app.listen(8000, function () {
   console.log("Server is listening on port 8000");
   updateData();
-  setInterval(updateData, 600000)
+  setInterval(updateData, 600000);
 });
