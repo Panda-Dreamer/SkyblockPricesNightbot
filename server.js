@@ -4,7 +4,7 @@ const url = require("url");
 const querystring = require("querystring");
 const axios = require("axios");
 const { arch } = require("os");
-
+const fs = require('fs');
 let app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -34,6 +34,8 @@ function updateData() {
       for (const [product_id, product] of Object.entries(response.data.products)) {
         bzitems[product.product_id.replaceAll("_", " ").toLocaleLowerCase().split(":")[0]] = product;
       }
+      
+      fs.writeFile('bzar.json', JSON.stringify(bzitems), 'utf8',(()=>{console.log("BZ saved")}));
     })
     .catch((error) => {
       console.log(error);
@@ -153,6 +155,7 @@ function updateData() {
       }
       items = new_items;
       console.log("Items processed: ", Object.entries(items).length);
+      fs.writeFile('ah.json', JSON.stringify(items), 'utf8',(()=>{console.log("AH saved")}));
       updating = false;
     })
     .catch((error) => {
@@ -225,6 +228,7 @@ app.get("/api/prices", async function (req, res) {
 });
 
 let server = app.listen(8000, function () {
+  items = JSON.parse(fs.readFileSync("ah.json","utf-8"))
   console.log("Server is listening on port 8000");
   updateData();
   setInterval(updateData, 600000);
