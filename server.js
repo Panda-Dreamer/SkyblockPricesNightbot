@@ -206,7 +206,7 @@ app.get("/api/prices", async function (req, res) {
   let item = items[query.toLocaleLowerCase()];
   let bzitem = bzitems[query.toLocaleLowerCase()];
 
-  //console.log(query.toLocaleLowerCase(), item);
+  console.log(query.toLocaleLowerCase(), item);
   //console.log(query.toLocaleLowerCase(), bzitem);
 
   if (!item && !bzitem) {
