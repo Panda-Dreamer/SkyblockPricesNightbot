@@ -222,9 +222,10 @@ app.get("/api/prices", async function (req, res) {
   }
 
   if (item) {
-    let lowprice = `Prix moyen: ${nFormatter(item.moy_hb.result, 1)}`;
-    let highprice = item.highest_starting_bid > item.highest_highest_bid ? "Enchère la plus haute: " + nFormatter(item.highest_starting_bid) + ";" : "Enchère la plus haute: " + nFormatter(item.highest_highest_bid) + ";";
-    ahstring = ` (AH) -  ${lowprice} ${highprice}`;
+    let lowprice = `⬇️: ${nFormatter(item.lowest_highest_bid, 1)}`;
+    let moyprice = `Prix moyen: ${nFormatter(item.moy_hb.result, 1)}`;
+    let highprice = item.highest_starting_bid > item.highest_highest_bid ? "⬆️: " + nFormatter(item.highest_starting_bid) + ";" : "⬆️: " + nFormatter(item.highest_highest_bid) + ";";
+    ahstring = ` (AH) -  ${moyprice}: ${lowprice} ${highprice}`;
   }
 
   if (ahstring != "" && bzstring != "") {
