@@ -76,12 +76,17 @@ function updateData() {
             while (auction.item_name.charAt(0) === " ") {
               auction.item_name = auction.item_name.substring(1);
             }
-            item = new_items[auction.item_name.toLowerCase()];
-            //process.stdout.write(`Items processed: ${Object.entries(new_items).length}/${response.data.totalAuctions}, Page:${i}/${page_count}                    \r`);
+            let key = auction.item_name.toLowerCase()
+            let prefixes = ["Gentle","Odd","Fast","Fair","Epic","Sharp","Heroic","Spicy","Legendary","Dirty","Fabled","Suspicious","Gilded","Warped","Withered","Bulky","Salty","Treacherous","Stiff","Lucky","Wise","Refined","Perfect","Superior","Itchy","Unpleasant","Spiked","Fabled","Renowned","Cubic","Silky","Reinforced","Magnetic","Fruitful","Necrotic","Undead","Bloody","Precise","Ridiculous","Loving","Spiritual","Shaded","Ancient","Moil","Toil","Blessed","Fleet","Mithraic","Auspicious","Stellar","Headstrong","Stiff","Bountiful","Jaded","Double-Bit","Lumberjack's","Great","Rugged","Lush","Zooming","Unyielding","Sturdy","Hyper","Mythic","Fierce","shiny","Clean","Pure","light","raggedy","honed",""]
+            for (var pi = 0; pi < prefixes.length; pi++) { 
+              key = key.toLowerCase().replace(prefixes[pi].toLowerCase()+" ","")
+            }
+            item = new_items[key];
+            process.stdout.write(`Items processed: ${Object.entries(new_items).length}/${response.data.totalAuctions}, Page:${i}/${page_count}                    \r`);
 
             if (!item) {
               //console.log(`Adding item:${auction.item_name}`)
-              new_items[auction.item_name.toLowerCase()] = {
+              new_items[key] = {
                 name: auction.item_name,
                 lowest_starting_bid: auction.starting_bid,
                 lowest_highest_bid: auction.highest_bid_amount || "99999999999999999999999999999999999999999",
@@ -98,43 +103,43 @@ function updateData() {
               };
 
               if (auction.lowest_starting_bid) {
-                new_items[auction.item_name.toLowerCase()].moy_sb.data.push(auction.lowest_starting_bid);
+                new_items[key].moy_sb.data.push(auction.lowest_starting_bid);
               }
 
               if (auction.highest_bid_amount && auction.highest_bid_amount != 0) {
-                new_items[auction.item_name.toLowerCase()].moy_hb.data.push(auction.highest_bid_amount);
+                new_items[key].moy_hb.data.push(auction.highest_bid_amount);
               }
             } else {
-              let current_item = new_items[auction.item_name.toLowerCase()];
-              new_items[auction.item_name.toLowerCase()].amount = current_item.amount + 1;
+              let current_item = new_items[key];
+              new_items[key].amount = current_item.amount + 1;
 
               if (current_item.lowest_starting_bid > auction.starting_bid) {
-                new_items[auction.item_name.toLowerCase()].lowest_starting_bid = auction.starting_bid;
+                new_items[key].lowest_starting_bid = auction.starting_bid;
               }
 
               if (current_item.lowest_highest_bid > auction.highest_bid_amount) {
-                new_items[auction.item_name.toLowerCase()].lowest_highest_bid = auction.highest_bid_amount;
+                new_items[key].lowest_highest_bid = auction.highest_bid_amount;
               }
 
               if (current_item.highest_starting_bid < auction.starting_bid) {
-                new_items[auction.item_name.toLowerCase()].highest_starting_bid = auction.starting_bid;
+                new_items[key].highest_starting_bid = auction.starting_bid;
               }
 
               if (current_item.highest_starting_bid < auction.highest_bid_amount) {
-                new_items[auction.item_name.toLowerCase()].highest_starting_bid = auction.highest_bid_amount;
+                new_items[key].highest_starting_bid = auction.highest_bid_amount;
               }
 
               if (auction.starting_bid) {
-                new_items[auction.item_name.toLowerCase()].moy_sb.data.push(auction.starting_bid);
+                new_items[key].moy_sb.data.push(auction.starting_bid);
               }
 
               if (auction.bin == false) {
                 if (auction.highest_bid_amount && auction.highest_bid_amount != 0) {
-                  new_items[auction.item_name.toLowerCase()].moy_hb.data.push(auction.highest_bid_amount);
+                  new_items[key].moy_hb.data.push(auction.highest_bid_amount);
                 }
               }else{
                 if (auction.starting_bid && auction.starting_bid != 0) {
-                  new_items[auction.item_name.toLowerCase()].moy_hb.data.push(auction.starting_bid);
+                  new_items[key].moy_hb.data.push(auction.starting_bid);
                 }
               }
             }
@@ -192,6 +197,9 @@ app.get("/api/prices", async function (req, res) {
     res.send("Utilisation: ![cmd] <nom de l'objet>");
     return;
   }
+  if(!query.toLocaleLowerCase() =="jimmyboyyy"){
+    res.send(`[JimmyBoyyy] (DA) - Acheter: 1.1T, Vendre: 200G (PS: le commerce d'humain c'est bizarre quand même)`)
+  }
 
   let item = items[query.toLocaleLowerCase()];
   let bzitem = bzitems[query.toLocaleLowerCase()];
@@ -229,6 +237,7 @@ app.get("/api/prices", async function (req, res) {
 
 let server = app.listen(8000, function () {
   items = JSON.parse(fs.readFileSync("ah.json","utf-8"))
+  console.log(`Loaded ${Object.entries(items).length} items from ah.json`)
   console.log("Server is listening on port 8000");
   updateData();
   setInterval(updateData, 600000);
