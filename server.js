@@ -235,6 +235,10 @@ app.get("/api/prices", async function (req, res) {
   res.send(finalString);
 });
 
+
+app.get("/api/dump", async function (req, res) {
+  res.send(JSON.stringify(items))
+})
 let server = app.listen(8000, function () {
   items = JSON.parse(fs.readFileSync("ah.json","utf-8"))
   console.log(`Loaded ${Object.entries(items).length} items from ah.json`)
