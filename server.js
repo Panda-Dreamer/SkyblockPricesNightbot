@@ -77,9 +77,9 @@ function updateData() {
               auction.item_name = auction.item_name.substring(1);
             }
             let key = auction.item_name.toLowerCase()
-            let prefixes = ["Gentle","Odd","Fast","Fair","Epic","Sharp","Heroic","Spicy","Legendary","Dirty","Fabled","Suspicious","Gilded","Warped","Withered","Bulky","Salty","Treacherous","Stiff","Lucky","Wise","Refined","Perfect","Superior","Itchy","Unpleasant","Spiked","Fabled","Renowned","Cubic","Silky","Reinforced","Magnetic","Fruitful","Necrotic","Undead","Bloody","Precise","Ridiculous","Loving","Spiritual","Shaded","Ancient","Moil","Toil","Blessed","Fleet","Mithraic","Auspicious","Stellar","Headstrong","Stiff","Bountiful","Jaded","Double-Bit","Lumberjack's","Great","Rugged","Lush","Zooming","Unyielding","Sturdy","Hyper","Mythic","Fierce","shiny","Clean","Pure","light","raggedy","honed",""]
+            let prefixes = ["Gentle","Odd","Fast","Fair","Epic","Sharp","Heroic","Spicy","Legendary","Dirty","Fabled","Suspicious","Gilded","Warped","Withered","Bulky","Salty","Treacherous","Stiff","Lucky","Wise","Refined","Perfect","Superior","Itchy","Unpleasant","Spiked","Fabled","Renowned","Cubic","Silky","Reinforced","Magnetic","Fruitful","Necrotic","Undead","Bloody","Precise","Ridiculous","Loving","Spiritual","Shaded","Ancient","Moil","Toil","Blessed","Fleet","Mithraic","Auspicious","Stellar","Headstrong","Stiff","Bountiful","Jaded","Double-Bit","Lumberjack's","Great","Rugged","Lush","Zooming","Unyielding","Sturdy","Hyper","Mythic","Fierce","shiny","Clean","Pure","light","raggedy","honed"]
             for (var pi = 0; pi < prefixes.length; pi++) { 
-              key = key.toLowerCase().replace(prefixes[pi].toLowerCase()+" ","")
+              key = key.toLowerCase().replace(`${prefixes[pi].toLowerCase()} `,"")
             }
             item = new_items[key];
             process.stdout.write(`Items processed: ${Object.entries(new_items).length}/${response.data.totalAuctions}, Page:${i}/${page_count}                    \r`);
