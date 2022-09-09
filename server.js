@@ -73,11 +73,11 @@ function updateData() {
               .split(" - ")[0]
               .replace(/\[.*\]/, "")
               .replace(/\(.*\)/, "");
-            while (auction.item_name.charAt(0) === " ") {
-              auction.item_name = auction.item_name.substring(1);
-            }
+
+            auction.item_name = auction.item_name.trim()
             let key = auction.item_name.toLowerCase()
-            let prefixes = ["Gentle","Odd","Fast","Fair","Epic","Sharp","Heroic","Spicy","Legendary","Dirty","Fabled","Suspicious","Gilded","Warped","Withered","Bulky","Salty","Treacherous","Stiff","Lucky","Wise","Refined","Perfect","Superior","Itchy","Unpleasant","Spiked","Fabled","Renowned","Cubic","Silky","Reinforced","Magnetic","Fruitful","Necrotic","Undead","Bloody","Precise","Ridiculous","Loving","Spiritual","Shaded","Ancient","Moil","Toil","Blessed","Fleet","Mithraic","Auspicious","Stellar","Headstrong","Stiff","Bountiful","Jaded","Double-Bit","Lumberjack's","Great","Rugged","Lush","Zooming","Unyielding","Sturdy","Hyper","Mythic","Fierce","shiny","Clean","Pure","light","raggedy","honed","grand","rapid","awkward","unreal","thick","heavy","strengthened","deadly","titanic","smart","fine","vanquished","glistening","coldfused","excellent","thicc","candied","waxed","empowered","heated"]
+            let prefixes = ["Gentle","Odd","Fast","Fair","Epic","Sharp","Heroic","Spicy","Legendary","Dirty","Fabled","Suspicious","Gilded","Warped","Withered","Bulky","Salty","Treacherous","Stiff","Lucky","Wise","Refined","Perfect","Superior","Itchy","Unpleasant","Spiked","Fabled","Renowned","Cubic","Silky","Reinforced","Magnetic","Fruitful","Necrotic","Undead","Bloody","Precise","Ridiculous","Loving","Spiritual","Shaded","Ancient","Moil","Toil","Blessed","Fleet","Mithraic","Auspicious","Stellar","Headstrong","Stiff","Bountiful","Jaded","Double-Bit","Lumberjack's","Great","Rugged","Lush","Zooming","Unyielding","Sturdy","Hyper","Mythic","Fierce","shiny","Clean","Pure","light","raggedy","honed","grand","rapid","awkward","unreal","thick","heavy","strengthened","deadly","titanic","smart","fine","vanquished","glistening","coldfused","excellent","thicc","candied","waxed","empowered","heated","Heroic"]
+            prefixes = prefixes + prefixes
             for (var pi = 0; pi < prefixes.length; pi++) { 
               key = key.toLowerCase().replace(`${prefixes[pi].toLowerCase()} `,"")
             }
@@ -222,10 +222,9 @@ app.get("/api/prices", async function (req, res) {
   }
 
   if (item) {
-    let lowprice = `⬇️: ${nFormatter(item.lowest_highest_bid, 1)}`;
-    let moyprice = `Prix moyen: ${nFormatter(item.moy_hb.result, 1)}`;
-    let highprice = item.highest_starting_bid > item.highest_highest_bid ? "⬆️: " + nFormatter(item.highest_starting_bid) + ";" : "⬆️: " + nFormatter(item.highest_highest_bid) + ";";
-    ahstring = ` (AH) -  ${moyprice}: ${lowprice} ${highprice}`;
+    let lowprice = `Prix moyen: ${nFormatter(item.moy_hb.result, 1)}`;
+    let highprice = item.highest_starting_bid > item.highest_highest_bid ? "Enchère la plus haute: " + nFormatter(item.highest_starting_bid) + ";" : "Enchère la plus haute: " + nFormatter(item.highest_highest_bid) + ";";
+    ahstring = ` (AH) -  ${lowprice} ${highprice}`;
   }
 
   if (ahstring != "" && bzstring != "") {
