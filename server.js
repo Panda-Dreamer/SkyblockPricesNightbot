@@ -234,7 +234,7 @@ app.get("/api/prices", async function (req, res) {
   if (item) {
     let lowprice = `Prix moyen: ${nFormatter(item.moy_hb.result, 1)}`;
     let highprice = item.highest_starting_bid > item.highest_highest_bid ? "Enchère la plus haute: " + nFormatter(item.highest_starting_bid) + ";" : "Enchère la plus haute: " + nFormatter(item.highest_highest_bid) + ";";
-    let low_bin = item.lowest_bin == 9999999999999999999999999999999999999 ? `` : `BIN le plus bas: ${nFormatter(item.lowest_bin)}`
+    let low_bin = (item.lowest_bin == 9999999999999999999999999999999999999 || item.lowest_bin == 0) ? `` : `BIN le plus bas: ${nFormatter(item.lowest_bin)}`
     ahstring = ` (AH) -  ${lowprice} ${highprice} ${low_bin}`;
   }
 
