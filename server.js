@@ -211,6 +211,9 @@ app.get("/api/prices", async function (req, res) {
     res.send(`[JimmyBoyyy] (DA) - Acheter: 1.1T, Vendre: 200G (PS: le commerce d'humain c'est bizarre quand même)`)
   }
 
+  if(items === {}){
+    res.send("Les prix sont indisponibles pour le moment, réessayez dans quelques minutes")
+  }
   let item = items[query.toLocaleLowerCase()];
   let bzitem = bzitems[query.toLocaleLowerCase()];
 
@@ -259,5 +262,5 @@ let server = app.listen(8000, function () {
   setInterval(() => {
     items = {}
     updateData()
-  }, 86400000);
+  }, 259200000);
 });
