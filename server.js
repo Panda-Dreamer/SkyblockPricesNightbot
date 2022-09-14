@@ -96,6 +96,8 @@ function updateData() {
                 highest_starting_bid: auction.starting_bid,
                 highest_highest_bid: auction.highest_bid_amount || "0",
 
+                lowest_bin: -1,
+
                 moy_sb: {
                   data: [],
                 },
@@ -129,6 +131,12 @@ function updateData() {
 
               if (current_item.highest_starting_bid < auction.highest_bid_amount) {
                 new_items[key].highest_starting_bid = auction.highest_bid_amount;
+              }
+
+              if(auction.bin == true){
+                if(auction.starting_bid < current_item.lowest_bin){
+                  new_items[key].lowest_bin = auction.starting_bid
+                }
               }
 
               if (auction.starting_bid) {
@@ -226,7 +234,8 @@ app.get("/api/prices", async function (req, res) {
   if (item) {
     let lowprice = `Prix moyen: ${nFormatter(item.moy_hb.result, 1)}`;
     let highprice = item.highest_starting_bid > item.highest_highest_bid ? "Enchère la plus haute: " + nFormatter(item.highest_starting_bid) + ";" : "Enchère la plus haute: " + nFormatter(item.highest_highest_bid) + ";";
-    ahstring = ` (AH) -  ${lowprice} ${highprice}`;
+    let low_bin = item.lowest_bin ? -1 `` : `BIN le plus bas: ${nFormatter(item.lowest_bin)}`
+    ahstring = ` (AH) -  ${lowprice} ${highprice} ${low_bin}`;
   }
 
   if (ahstring != "" && bzstring != "") {
