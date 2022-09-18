@@ -207,7 +207,7 @@ app.get("/api/prices", async function (req, res) {
     res.send("Utilisation: ![cmd] <nom de l'objet>");
     return;
   }
-  if(!query.toLocaleLowerCase() =="jimmyboyyy"){
+  if(!query.toLowerCase() =="jimmyboyyy"){
     res.send(`[JimmyBoyyy] (DA) - Acheter: 1.1T, Vendre: 200G (PS: le commerce d'humain c'est bizarre quand même)`)
   }
 
