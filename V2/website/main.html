@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Omega's AH flipper</title>
+
+    <style>
+      body {
+        background-color: rgb(40, 41, 41);
+      }
+      .input {
+        width: 50px;
+      }
+
+      h1,
+      h2,
+      h3,
+      label,
+      div {
+        color: white;
+      }
+
+      .container {
+        align-items: flex-start;
+        flex-direction: row;
+        overflow-x: scroll;
+        width: 100%;
+        height: fit-content;
+      }
+
+      .item {
+        background-color: rgb(27, 29, 29);
+        height: fit-content;
+        width: 200px;
+        padding: 10px;
+        border-radius: 10px;
+      }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.1/socket.io.js"></script>
+    <script>
+      function deleteItem(id) {
+        console.log(id + "-item");
+        let el = document.getElementById(id + "-item");
+        if (el != null) {
+          el.remove();
+        }
+      }
+      function nFormatter(num, digits) {
+        const lookup = [
+          { value: 1, symbol: "" },
+          { value: 1e3, symbol: "k" },
+          { value: 1e6, symbol: "M" },
+          { value: 1e9, symbol: "b" },
+          { value: 1e12, symbol: "T" },
+          { value: 1e15, symbol: "P" },
+          { value: 1e18, symbol: "E" },
+        ];
+        const rx = /\.0+$|(\.[0-9]*[1-9])0+$/;
+        var item = lookup
+          .slice()
+          .reverse()
+          .find(function (item) {
+            return num >= item.value;
+          });
+        return item ? (num / item.value).toFixed(digits).replace(rx, "$1") + item.symbol : "0";
+      }
+
+      var socket = io("localhost:3000");
+      socket.on("data", async (data) => {
+        data = JSON.parse(data);
+        document.getElementById("container").innerHTML = "";
+        data.sort(function (a, b) {
+          if (a.profit < b.profit) {
+            return 1;
+          }
+          if (a.profit > b.profit) {
+            return -1;
+          }
+          return 0;
+        });
+        data.forEach((obj) => {
+          html = `<div id="${obj.uuid}-item" style="margin:10px" ><div class="item" ><h4>${obj.name}</h4>
+
+<label>Evaluated value: ${nFormatter(obj.evaluatedPrice, 1)}</label><br>
+<label>Listed price: ${nFormatter(obj.price, 1)}</label><br>
+<label>Profit: ${nFormatter(obj.profit, 1)}</label><br>
+<label>Sales per day: ${obj.sales}</label><br><br>
+
+
+<label>Price list:</label><br>
+<label>${obj.text.replaceAll("\n", "<br>")}</label><br><br>
+
+<label>Type: ${obj.rarity} ${obj.Isdungeon == true ? "DUNGEON" : ""}${obj.type}</label>
+<br>
+<br>
+  </div>
+  <div>
+<button onclick="onclick(deleteItem(this.id))" id="${obj.uuid}">Delete</button> <button onclick="navigator.clipboard.writeText('/viewauction ${obj.uuid}')">Copy Command</button>
+</div>
+  </div>`;
+          document.getElementById("container").innerHTML += html;
+        });
+      });
+
+      socket.on("status", async (data) => {
+        document.getElementById("progress").innerHTML = data;
+      });
+
+      function scan() {
+        socket.emit("scan", document.getElementById("pages").value);
+      }
+    </script>
+  </head>
+  <body>
+    <h1>Flipper</h1>
+    <button id="scan" onclick="scan()">Scan</button><label id="progress"></label><br />
+    <label>Pages to scan: </label><input type="text" class="input" id="pages" />
+    <h2>Settings</h2>
+    <div>
+      <label>Leave blank if you dont want to set a limit</label><br /><br />
+      <label>Min profit: </label><input type="text" class="input" /><br />
+      <label>Max price: </label><input type="text" class="input" /><br />
+      <label>Min sales/day: </label><input type="text" class="input" /><br />
+      <label>Item types: </label><input type="text" class="input" /><br />
+      <label>Rarities: </label><input type="text" class="input" /><br />
+      <label>Categories: </label><input type="text" class="input" /><br /><br />
+
+      <h2>Auctions</h2>
+      <div class="container" id="container" style="display: flex"></div>
+    </div>
+  </body>
+</html>
