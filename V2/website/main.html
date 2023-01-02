@@ -67,7 +67,7 @@
         return item ? (num / item.value).toFixed(digits).replace(rx, "$1") + item.symbol : "0";
       }
 
-      var socket = io("localhost:3000");
+      var socket = io("129.151.66.228:3000");
       socket.on("data", async (data) => {
         data = JSON.parse(data);
         document.getElementById("container").innerHTML = "";

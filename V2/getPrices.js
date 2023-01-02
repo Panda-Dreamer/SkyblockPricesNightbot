@@ -42,6 +42,6 @@ function updateCycle() {
 
 setInterval(() => {
   updateCycle();
-}, 259200000);
+}, 120e3);
 
 updateCycle()
