@@ -129,12 +129,12 @@ async function evaluateValue(itemData, auction, key) {
   }
 
   reforges = {
-    ancient: 0.9e6,
-    withered: 2e6,
-    jaded: 6e6,
-    spiritual: 2e6,
-    stellar: 0.5e6,
-    empowered: 1.7e6,
+    ancient: 450e3,
+    withered: 1e6,
+    jaded: 2e6,
+    spiritual: 1e6,
+    stellar: 250e3,
+    empowered: 750e3,
   };
 
   if (reforges[itemData.modifier]) {
