@@ -67,6 +67,29 @@
         return item ? (num / item.value).toFixed(digits).replace(rx, "$1") + item.symbol : "0";
       }
 
+      function copyToClipboard(textToCopy) {
+        // navigator clipboard api needs a secure context (https)
+        if (navigator.clipboard && window.isSecureContext) {
+          // navigator clipboard api method'
+          return navigator.clipboard.writeText(textToCopy);
+        } else {
+          // text area method
+          let textArea = document.createElement("textarea");
+          textArea.value = textToCopy;
+          // make the textarea out of viewport
+          textArea.style.position = "fixed";
+          textArea.style.left = "-999999px";
+          textArea.style.top = "-999999px";
+          document.body.appendChild(textArea);
+          textArea.focus();
+          textArea.select();
+          return new Promise((res, rej) => {
+            // here the magic happens
+            document.execCommand("copy") ? res() : rej();
+            textArea.remove();
+          });
+        }
+      }
       var socket = io("129.151.66.228:3000");
       socket.on("data", async (data) => {
         data = JSON.parse(data);
@@ -98,7 +121,7 @@
   </div>
   <div>
 <input type="text" value="/viewauction ${obj.uuid}">
-<button onclick="onclick(deleteItem(this.id))" id="${obj.uuid}">Delete</button> <button onclick="navigator.clipboard.writeText('/viewauction ${obj.uuid}')">Copy Command</button>
+<button onclick="onclick(deleteItem(this.id))" id="${obj.uuid}">Delete</button> <button onclick="copyToClipboard('/viewauction ${obj.uuid}')">Copy Command</button>
 </div>
   </div>`;
           document.getElementById("container").innerHTML += html;
