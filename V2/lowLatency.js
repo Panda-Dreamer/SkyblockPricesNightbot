@@ -54,18 +54,20 @@ function updateData(maxpages) {
                 treshold = "5"; //%
                 sum = 0;
                 textList = "";
+                UsefulCount = 0
                 for (let index = 0; index < priceList.length; index++) {
                   item = priceList[index];
                   sum = sum + item[1];
                   if (item[1] > 0) {
                     textList += `- ${item[0]}: ${nFormatter(item[1], 1)}\n`;
+                    UsefulCount+=1
                   }
                 }
 
                 textList += "\n";
                 textList += "Total: " + nFormatter(sum, 1) + "\n";
                 status(`Page:${page} item:${ai} Found: ${detectedAuctions.length}`);
-                if (sum - auction.starting_bid >= (auction.starting_bid / 100) * 20 && sum - auction.starting_bid > 100000 && priceList.length > 1) {
+                if (sum - auction.starting_bid >= (auction.starting_bid / 100) * 20 && sum - auction.starting_bid > 100000 && UsefulCount > 1) {
                   obj = {
                     name: auction.item_name,
                     evaluatedPrice: sum,
