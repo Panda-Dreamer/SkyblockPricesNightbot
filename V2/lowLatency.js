@@ -39,35 +39,37 @@ function updateData(maxpages) {
     .get("https://api.hypixel.net/skyblock/auctions?page=0", { headers: { "API-Key": "a29d3e80-9cfc-4e9f-9d31-0dbeb560ca8a" } })
     .then(async (response) => {
       let page_count = response.data.totalPages;
-      for (var page = 1; page <= maxpages; page++) { // changed page_count to 1 for testing
+      for (var page = 1; page <= maxpages; page++) {
+        // changed page_count to 1 for testing
         data = await RequestPage(page);
         if (data != false && data.success == true) {
           count = data.auctions.length;
-          for (var ai = 0; ai < count; ai++) { 
+          for (var ai = 0; ai < count; ai++) {
             let auction = data.auctions[ai];
             if (auction.bin == true) {
               nbtData = await readData(auction);
-              let key = await getKey(nbtData);
+              rarityObj = await checkItemType(auction.item_lore.replace(/\u00A7[0-9A-FK-OR]/gi, ""));
+              let key = await getKey(nbtData, rarityObj);
               if (Filter(auction, nbtData, key) == true) {
                 priceList = await evaluateValue(nbtData, auction, key);
-                rarityObj = await checkItemType(auction.item_lore.replace(/\u00A7[0-9A-FK-OR]/gi, ""));
+
                 treshold = "5"; //%
                 sum = 0;
                 textList = "";
-                UsefulCount = 0
+                UsefulCount = 0;
                 for (let index = 0; index < priceList.length; index++) {
                   item = priceList[index];
                   sum = sum + item[1];
                   if (item[1] > 0) {
                     textList += `- ${item[0]}: ${nFormatter(item[1], 1)}\n`;
-                    UsefulCount+=1
+                    UsefulCount += 1;
                   }
                 }
 
                 textList += "\n";
                 textList += "Total: " + nFormatter(sum, 1) + "\n";
                 status(`Page:${page} item:${ai} Found: ${detectedAuctions.length}`);
-                if (sum - auction.starting_bid >= (auction.starting_bid / 100) * 20 && sum - auction.starting_bid > 100000 && UsefulCount > 1) {
+                if (sum - auction.starting_bid >= (auction.starting_bid / 100) * 20 && sum - auction.starting_bid > 100000) {
                   obj = {
                     name: auction.item_name,
                     evaluatedPrice: sum,
@@ -82,8 +84,8 @@ function updateData(maxpages) {
                     Isdungeon: rarityObj.dungeon,
                     category: auction.category,
                   };
-                  obj.profit = ((obj.evaluatedPrice - obj.price) - (0.05 * obj.evaluatedPrice)) - (obj.evaluatedPrice >= 1e6 ? obj.evaluatedPrice*0.01 : 0)
-                  obj.sales = Math.round(ah[obj.key].sales / 3)
+                  obj.profit = obj.evaluatedPrice - obj.price - 0.05 * obj.evaluatedPrice - (obj.evaluatedPrice >= 1e6 ? obj.evaluatedPrice * 0.01 : 0);
+                  obj.sales = Math.round(ah[obj.key].salesPerDay / 3);
                   await log(obj);
                 }
               }
@@ -99,10 +101,10 @@ function updateData(maxpages) {
 }
 
 function isBanned(key) {
-  bans = ["ULTIMATE_CARROT_CANDY"]
-  if(bans.includes(key)){
-    return true
-  }else{
+  bans = ["ULTIMATE_CARROT_CANDY"];
+  if (bans.includes(key)) {
+    return true;
+  } else {
     return false;
   }
 }
@@ -150,12 +152,8 @@ function capitalizeFirstLetter(str) {
 
 function getBasePrice(key) {
   //console.log(key,ah[key])
-  if(ah[key] !=undefined){
-    if(ah[key].clean_price != undefined){
-      return ah[key].clean_price
-    }else{
-      return (ah[key].price*0.9)
-    }
+  if (ah[key] != undefined) {
+      return ah[key].lowestRawPrice;
   }
 }
 
@@ -212,13 +210,13 @@ async function readData(auction) {
   return formattedData;
 }
 
-async function getKey(itemData) {
+async function getKey(itemData, rarityObj) {
   //console.log(itemData)
   key = itemData.key.replaceAll(":", "-");
   //https://github.com/Root3287/NotEnoughUpdates/blob/7c6d37b2eb758a13b342b906f0aef88b940bc52a/src/main/java/io/github/moulberry/notenoughupdates/NEUManager.java#L726
   if (key == "PET") {
     petInfo = JSON.parse(itemData.raw.tag.value.ExtraAttributes.value.petInfo.value);
-    if (itemData.raw.tag.value.ExtraAttributes.value.petInfo.value.lengthc > 0) {
+    if (itemData.raw.tag.value.ExtraAttributes.value.petInfo.value.length > 0) {
       key = petInfo.type;
       tier = petInfo.tier;
       switch (tier) {
@@ -240,7 +238,46 @@ async function getKey(itemData) {
         case "MYTHIC":
           key += ";5";
           break;
+        case "DIVINE":
+          key += ";6";
+          break;
+        case "SPECIAL":
+          key += ";7";
+          break;
+        case "VERY SPECIAL":
+          key += ";8";
+          break;
       }
+    }
+  } else {
+    switch (rarityObj.rarity) {
+      case "COMMON":
+        key += ":0";
+        break;
+      case "UNCOMMON":
+        key += ":1";
+        break;
+      case "RARE":
+        key += ":2";
+        break;
+      case "EPIC":
+        key += ":3";
+        break;
+      case "LEGENDARY":
+        key += ":4";
+        break;
+      case "MYTHIC":
+        key += ":5";
+        break;
+      case "DIVINE":
+        key += ":6";
+        break;
+      case "SPECIAL":
+        key += ":7";
+        break;
+      case "VERY SPECIAL":
+        key += ":8";
+        break;
     }
   }
 
@@ -449,8 +486,8 @@ Type:
 ${obj.rarity} ${obj.Isdungeon == true ? "DUNGEON" : ""}${obj.type}
 `;
   detectedAuctions.push(obj);
- // await fs.appendFileSync("result.txt", text);
- io.sockets.in("update").emit("data",JSON.stringify(detectedAuctions));
+  // await fs.appendFileSync("result.txt", text);
+  io.sockets.in("update").emit("data", JSON.stringify(detectedAuctions));
 }
 
 async function checkItemType(lore) {
@@ -496,55 +533,30 @@ async function checkItemType(lore) {
     }
   }
 
-  return rarityObj
+  return rarityObj;
 }
 
-function Filter(auction,nbtData,key){
-  return true
+function Filter(auction, nbtData, key) {
+  return true;
 }
 
-function addHTMLItem(obj){
-  text = `<div>
-  <div class="item" >
-<h4>TOP LINE</h4>
-
-<label>Evaluated value: 8.7M</label><br>
-<label></label>Listed price: 7M</label><br>
-<label></label>Profit: 1.7M</label><br><br>
-
-<label>Price list:</label><br>
-<label>-------------</label><br>
-<label>Total: 10M</label><br><br>
-
-<label>Type: </label>
-<br>
-<br>
-  </div>
-  <div>
-<button id="delete-">Delete</button> <button>Copy Command</button>
-</div>
-  </div>`
-}
-
-io.on('connection', (socket) => {
-  console.log("Connection !")
-  socket.join("update")
-  console.log("Refershing....")
-  socket.on("scan",(pages)=>{
-    console.log("Received scan order for max pages:",pages,)
+io.on("connection", (socket) => {
+  console.log("Connection !");
+  socket.join("update");
+  console.log("Refershing....");
+  socket.on("scan", (pages) => {
+    console.log("Received scan order for max pages:", pages);
     updateData(pages);
-  })
-  io.sockets.in("update").emit("data",JSON.stringify(detectedAuctions));
+  });
+  io.sockets.in("update").emit("data", JSON.stringify(detectedAuctions));
 });
 
-app.get('/', (req, res) => {
-  res.sendFile(__dirname +"/website/main.html")
-})
+app.get("/", (req, res) => {
+  res.sendFile(__dirname + "/website/main.html");
+});
 
-
-
-function status(text){
-  console.log(text)
-  io.sockets.in("update").emit("status",text);
+function status(text) {
+  console.log(text);
+  io.sockets.in("update").emit("status", text);
 }
 httpServer.listen(3000);

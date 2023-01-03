@@ -90,7 +90,14 @@
           });
         }
       }
-      var socket = io("129.151.66.228:3000");
+      var socket
+      if(document.URL.includes("localhost")){
+        socket = io("localhost:3000");
+      }else{
+        socket = io("129.151.66.228:3000");
+      }
+      
+
       socket.on("data", async (data) => {
         data = JSON.parse(data);
         document.getElementById("container").innerHTML = "";
