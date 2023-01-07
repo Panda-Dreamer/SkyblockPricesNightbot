@@ -52,7 +52,7 @@ function RequestPage(number) {
   });
 }
 
-async function getAH() {
+async function getAH(io) {
   return new Promise((resolve, reject) => {
     CompiledData = {};
     axios.get("https://api.hypixel.net/skyblock/auctions?page=0", { headers: { "API-Key": "a29d3e80-9cfc-4e9f-9d31-0dbeb560ca8a" } }).then(async (response) => {
@@ -61,6 +61,7 @@ async function getAH() {
         // changed page_count to 1 for testing
         data = await RequestPage(page);
         if (data != false && data.success == true) {
+          io("status", {lastUpdate:`Updating... Page:${page}/${page_count}`});
           count = data.auctions.length;
           for (var ai = 0; ai < count; ai++) {
             let auction = data.auctions[ai];
@@ -94,6 +95,7 @@ async function getAH() {
         }
       }
       keys = Object.keys(CompiledData);
+      io("status", {lastUpdate:`Updating... Calculating avgs for ${keys.length} item types`});
       for (var ii = 0; ii < keys.length; ii++) {
         key = keys[ii];
         item = CompiledData[key];
@@ -511,19 +513,21 @@ async function evaluateValue(auction) {
   return itemData;
 }
 
-async function updateCycle() {
+async function updateCycle(io) {
   console.log("Updating prices");
+  io("status", {lastUpdate:`Update started`});
   startingTime = Math.floor(+new Date() / 1000);
 
   await getBZ();
   bz = JSON.parse(fs.readFileSync("./files/bzar.json", "utf8"));
   await getNEU();
   neu = JSON.parse(fs.readFileSync("./files/neu.json", "utf8"));
-  getAH().then(() => {
+  getAH(io).then(() => {
     statusData = JSON.parse(fs.readFileSync("./files/status.json", "utf8"));
     statusData.lastPricesUpdate = Math.floor(+new Date() / 1000);
     fs.writeFile("./files/status.json", JSON.stringify(statusData), "utf8", () => {
       console.log(`Prices update finished in ${statusData.lastPricesUpdate - startingTime}s`);
+      io("status", {lastUpdate:`Prices update finished in ${statusData.lastPricesUpdate - startingTime}s, Last Update:${new Date().toLocaleString()}`});
     });
   });
 }
@@ -548,8 +552,4 @@ function nFormatter(num, digits) {
   return item ? (num / item.value).toFixed(digits).replace(rx, "$1") + item.symbol : "0";
 }
 
-setInterval(() => {
-  updateCycle();
-}, 300e3);
-
-updateCycle();
+module.exports = updateCycle

@@ -11,6 +11,8 @@ const fs = require("fs");
 const ah = JSON.parse(fs.readFileSync("./files/ah.json", "utf8"));
 const bz = JSON.parse(fs.readFileSync("./files/bzar.json", "utf8"));
 
+const updateCycle = require("./getPrices.js")
+
 app.use(express.json());
 const httpServer = createServer(app);
 const io = new Server(httpServer, {});
@@ -44,6 +46,7 @@ function updateData(maxpages) {
         data = await RequestPage(page);
         if (data != false && data.success == true) {
           count = data.auctions.length;
+          status(`Page:${page} Found: ${detectedAuctions.length}`);
           for (var ai = 0; ai < count; ai++) {
             let auction = data.auctions[ai];
             if (auction.bin == true) {
@@ -52,7 +55,6 @@ function updateData(maxpages) {
               let key = await getKey(nbtData, rarityObj);
               if (Filter(auction, nbtData, key) == true) {
                 priceList = await evaluateValue(nbtData, auction, key);
-
                 treshold = "5"; //%
                 sum = 0;
                 textList = "";
@@ -68,8 +70,7 @@ function updateData(maxpages) {
 
                 textList += "\n";
                 textList += "Total: " + nFormatter(sum, 1) + "\n";
-                status(`Page:${page} item:${ai} Found: ${detectedAuctions.length}`);
-                if (sum - auction.starting_bid >= (auction.starting_bid / 100) * 20 && sum - auction.starting_bid > 100000) {
+                if (sum - auction.starting_bid >= (auction.starting_bid / 100) * 10) {
                   obj = {
                     name: auction.item_name,
                     evaluatedPrice: sum,
@@ -86,13 +87,17 @@ function updateData(maxpages) {
                   };
                   obj.profit = obj.evaluatedPrice - obj.price - 0.05 * obj.evaluatedPrice - (obj.evaluatedPrice >= 1e6 ? obj.evaluatedPrice * 0.01 : 0);
                   obj.sales = Math.round(ah[obj.key].salesPerDay / 3);
-                  await log(obj);
+                  //await log(obj);
+                  detectedAuctions.push(obj)
+
                 }
               }
             }
           }
         }
       }
+      status(`Scan finished Found: ${detectedAuctions.length}`);
+      io.sockets.in("update").emit("data", JSON.stringify(detectedAuctions));
     })
     .catch((error) => {
       console.log(error);
@@ -153,7 +158,7 @@ function capitalizeFirstLetter(str) {
 function getBasePrice(key) {
   //console.log(key,ah[key])
   if (ah[key] != undefined) {
-      return ah[key].lowestRawPrice;
+      return ah[key].lowestRaw;
   }
 }
 
@@ -548,6 +553,13 @@ io.on("connection", (socket) => {
     console.log("Received scan order for max pages:", pages);
     updateData(pages);
   });
+
+  socket.on("prices", () => {
+    function send(channel,text){
+      io.sockets.in("update").emit(channel,text);
+    }
+    updateCycle(send)
+  });
   io.sockets.in("update").emit("data", JSON.stringify(detectedAuctions));
 });
 
@@ -557,6 +569,7 @@ app.get("/", (req, res) => {
 
 function status(text) {
   //console.log(text);
-  io.sockets.in("update").emit("status", text);
+  const statusFile = JSON.parse(fs.readFileSync("./files/status.json", "utf8"));
+  io.sockets.in("update").emit("status", {progress:text,lastUpdate:`Last update: ${new Date(statusFile.lastPricesUpdate).toLocaleString()}`});
 }
 httpServer.listen(3000);

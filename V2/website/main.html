@@ -90,74 +90,139 @@
           });
         }
       }
-      var socket
-      if(document.URL.includes("localhost")){
+      var socket;
+      if (document.URL.includes("localhost")) {
         socket = io("localhost:3000");
-      }else{
+      } else {
         socket = io("129.151.66.228:3000");
       }
-      
 
-      socket.on("data", async (data) => {
-        data = JSON.parse(data);
+      var detectedAuctions = [];
+
+      function getSettings() {
+        return {
+          minProfit: document.getElementById("minProfit").value,
+          maxPrice: document.getElementById("maxPrice").value,
+          sales: document.getElementById("sales").value,
+        };
+      }
+
+      function filter(obj, settings) {
+        if (settings.minProfit != "") {
+          if (settings.minProfit > obj.profit) {
+            return false;
+          }
+        }
+
+        if (settings.maxPrice != "") {
+          if (settings.maxPrice < obj.price) {
+            return false;
+          }
+        }
+
+        if (settings.sales != "") {
+          if (settings.sales < obj.sales) {
+            return false;
+          }
+        }
+
+        return true;
+      }
+
+      function display() {
         document.getElementById("container").innerHTML = "";
+        sorted = sort(document.getElementById("sortSelector").value, detectedAuctions);
+        FHTML = "";
+        settings = getSettings();
+        sorted.forEach((obj) => {
+          if (filter(obj, settings) == true) {
+            FHTML += getHtml(obj);
+          }
+        });
+        document.getElementById("container").innerHTML = FHTML;
+      }
+
+      function sort(field, data) {
         data.sort(function (a, b) {
-          if (a.profit < b.profit) {
+          if (a[field] < b[field]) {
             return 1;
           }
-          if (a.profit > b.profit) {
+          if (a[field] > b[field]) {
             return -1;
           }
           return 0;
         });
-        data.forEach((obj) => {
-          html = `<div id="${obj.uuid}-item" style="margin:10px" ><div class="item" ><h4>${obj.name}</h4>
+        return data;
+      }
 
-<label>Evaluated value: ${nFormatter(obj.evaluatedPrice, 1)}</label><br>
-<label>Listed price: ${nFormatter(obj.price, 1)}</label><br>
-<label>Profit: ${nFormatter(obj.profit, 1)}</label><br>
-<label>Sales per day: ${obj.sales}</label><br><br>
+      function getHtml(obj) {
+        html = `<div id="${obj.uuid}-item" style="margin:10px" ><div class="item" ><h4>${obj.name}</h4>
+
+      <label>Evaluated value: ${nFormatter(obj.evaluatedPrice, 1)}</label><br>
+      <label>Listed price: ${nFormatter(obj.price, 1)}</label><br>
+      <label>Profit: ${nFormatter(obj.profit, 1)}</label><br>
+      <label>Sales per day: ${obj.sales}</label><br><br>
 
 
-<label>Price list:</label><br>
-<label>${obj.text.replaceAll("\n", "<br>")}</label><br><br>
+      <label>Price list:</label><br>
+      <label>${obj.text.replaceAll("\n", "<br>")}</label><br><br>
 
-<label>Type: ${obj.rarity} ${obj.Isdungeon == true ? "DUNGEON" : ""}${obj.type}</label>
-<br>
-<br>
-  </div>
-  <div>
-<input type="text" value="/viewauction ${obj.uuid}">
-<button onclick="onclick(deleteItem(this.id))" id="${obj.uuid}">Delete</button> <button onclick="copyToClipboard('/viewauction ${obj.uuid}')">Copy Command</button>
-</div>
-  </div>`;
-          document.getElementById("container").innerHTML += html;
-        });
+      <label>Type: ${obj.rarity} ${obj.Isdungeon == true ? "DUNGEON" : ""}${obj.type}</label>
+      <br>
+      <br>
+        </div>
+        <div>
+      <button onclick="onclick(deleteItem(this.id))" id="${obj.uuid}">Delete</button> <button onclick="copyToClipboard('/viewauction ${obj.uuid}')">Copy Command</button>
+      </div>
+        </div>`;
+        return html;
+      }
+
+      socket.on("data", async (data) => {
+        detectedAuctions = JSON.parse(data);
+        display();
       });
 
       socket.on("status", async (data) => {
-        document.getElementById("progress").innerHTML = data;
+        if(data.progress) document.getElementById("progress").innerHTML =  data.progress;
+        if(data.lastUpdate) document.getElementById("lastUpdated").innerHTML =  data.lastUpdate;
       });
 
       function scan() {
         socket.emit("scan", document.getElementById("pages").value);
       }
+
+      function prices() {
+        socket.emit("prices");
+      }
+      document.addEventListener("DOMContentLoaded", function () {
+        document.getElementById("sortSelector").addEventListener("change", display);
+        document.getElementById("maxPrice").addEventListener("change", display);
+        document.getElementById("sales").addEventListener("change", display);
+      });
     </script>
   </head>
   <body>
     <h1>Flipper</h1>
+    <button id="prices" onclick="prices()">Update prices</button><label id="lastUpdated"></label><br />
+    <br><br>
     <button id="scan" onclick="scan()">Scan</button><label id="progress"></label><br />
     <label>Pages to scan: </label><input type="text" class="input" id="pages" />
     <h2>Settings</h2>
+    <label>Sort by: </label>
+    <select id="sortSelector">
+      <option value="profit">Profit</option>
+      <option value="sales">Sales</option>
+      <option value="price">Price</option>
+      <option value="evaluatedPrice">EPrice</option>
+    </select>
+    <br />
+    <br />
     <div>
-      <label>Leave blank if you dont want to set a limit</label><br /><br />
-      <label>Min profit: </label><input type="text" class="input" /><br />
-      <label>Max price: </label><input type="text" class="input" /><br />
-      <label>Min sales/day: </label><input type="text" class="input" /><br />
-      <label>Item types: </label><input type="text" class="input" /><br />
-      <label>Rarities: </label><input type="text" class="input" /><br />
-      <label>Categories: </label><input type="text" class="input" /><br /><br />
-
+      <label>Leave blank if you dont want to set a limit</label><br />
+      <label>Min profit: </label><input type="text" class="input" id="minProfit" /><br />
+      <label>Max price: </label><input type="text" class="input" id="maxPrice" /><br />
+      <label>Min sales/day: </label><input type="text" class="input" id="sales" /><br /><br />
       <h2>Auctions</h2>
       <div class="container" id="container" style="display: flex"></div>
     </div>
