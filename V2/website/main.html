@@ -37,6 +37,17 @@
         padding: 10px;
         border-radius: 10px;
       }
+
+
+      .COMMON {color:#FFFFFF}
+      .UNCOMMON {color:#55FF55}
+      .RARE {color:#5555FF}
+      .EPIC {color:#8a048a}
+      .LEGENDARY {color:#FFAA00}
+      .MYTHIC {color:#ea00ff}
+      .DIVINE {color:#55FFFF}
+      .SPECIAL {color:#FF5555}
+      .VERYSPECIAL {color:#ff0000}
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.1/socket.io.js"></script>
     <script>
@@ -156,7 +167,7 @@
       }
 
       function getHtml(obj) {
-        html = `<div id="${obj.uuid}-item" style="margin:10px" ><div class="item" ><h4>${obj.name}</h4>
+        html = `<div id="${obj.uuid}-item" style="margin:10px" ><div class="item" ><img crossorigin="anonymous" src="https://sky.coflnet.com/static/icon/${obj.key.split(":")[0].split(";")[0]}" height="24" alt="" loading="lazy" style="margin-right: 5px;"><h4>${obj.name}</h4>
 
       <label>Evaluated value: ${nFormatter(obj.evaluatedPrice, 1)}</label><br>
       <label>Listed price: ${nFormatter(obj.price, 1)}</label><br>
@@ -167,7 +178,7 @@
       <label>Price list:</label><br>
       <label>${obj.text.replaceAll("\n", "<br>")}</label><br><br>
 
-      <label>Type: ${obj.rarity} ${obj.Isdungeon == true ? "DUNGEON" : ""}${obj.type}</label>
+      <label class="${obj.rarity.toUpperCase().replace(" ","")}">Type: ${obj.rarity} ${obj.Isdungeon == true ? "DUNGEON" : ""}${obj.type}</label>
       <br>
       <br>
         </div>
