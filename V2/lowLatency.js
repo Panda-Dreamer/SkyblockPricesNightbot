@@ -467,7 +467,7 @@ function nFormatter(num, digits) {
 foundAuctions = [];
 
 async function log(obj) {
-  console.log(`Found ${obj.name}`);
+  //console.log(`Found ${obj.name}`);
   text = `
 ----------------------------------------------------------
 ${obj.name} - (${obj.key})
@@ -556,7 +556,7 @@ app.get("/", (req, res) => {
 });
 
 function status(text) {
-  console.log(text);
+  //console.log(text);
   io.sockets.in("update").emit("status", text);
 }
 httpServer.listen(3000);

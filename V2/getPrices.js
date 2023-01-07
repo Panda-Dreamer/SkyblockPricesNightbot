@@ -72,20 +72,14 @@ async function getAH() {
                   count: 1,
                   avgRawPrice: {
                     list: [itemData.rawPrice],
-                    value: itemData.rawPrice,
                   },
                   avgPrice: {
                     list: [auctionPrice],
-                    value: auctionPrice,
                   },
                   avgDelta: {
                     list: [auctionPrice - itemData.rawPrice],
-                    value: auctionPrice - itemData.rawPrice,
                   },
                   salesPerDay: neu[itemData.internalKey.split(":")[0]] != undefined ? Math.round(neu[itemData.internalKey.split(":")[0]].sales / 3) : 0,
-
-                  lowestBin: auctionPrice,
-                  lowestRawPrice: itemData.rawPrice,
                 };
               } else {
                 collectedData = CompiledData[itemData.internalKey];
@@ -94,14 +88,6 @@ async function getAH() {
                 collectedData.avgRawPrice.list.push(itemData.rawPrice);
                 collectedData.avgPrice.list.push(auctionPrice);
                 collectedData.avgDelta.list.push(auctionPrice - itemData.rawPrice);
-
-                if (collectedData.lowestBin > auctionPrice && auctionPrice > 0) {
-                  collectedData.lowestBin = auctionPrice;
-                }
-
-                if (collectedData.lowestRawPrice > itemData.rawPrice && itemData.rawPrice > 0) {
-                  collectedData.lowestRawPrice = itemData.rawPrice;
-                }
               }
             }
           }
@@ -111,13 +97,35 @@ async function getAH() {
       for (var ii = 0; ii < keys.length; ii++) {
         key = keys[ii];
         item = CompiledData[key];
-        CompiledData[key].avgRawPrice.value = await calcAvg(item.avgRawPrice.list);
-        CompiledData[key].avgPrice.value = await calcAvg(item.avgPrice.list);
-        CompiledData[key].avgDelta.value = await calcAvg(item.avgDelta.list);
+
+
+        CompiledData[key].avgRawPrice.value = (item.avgRawPrice.list.reduce((total, currentValue) =>{
+          return total + currentValue
+        },0)/item.avgRawPrice.list.length
+        )
+        CompiledData[key].avgPrice.value = (item.avgPrice.list.reduce((total, currentValue) =>{
+          return total + currentValue
+        },0)/item.avgPrice.list.length
+        )
+        CompiledData[key].avgDelta.value = (item.avgDelta.list.reduce((total, currentValue) =>{
+          return total + currentValue
+        },0)/item.avgDelta.list.length
+        )
+
+
+        CompiledData[key].lowestBin = item.avgPrice.list.reduce((max,value)=>{
+          if (value < max){max = value}
+          return max
+        })
+
+        CompiledData[key].lowestRaw = item.avgRawPrice.list.reduce((max,value)=>{
+          if (value < max){max = value}
+          return max
+        })
       }
       fs.writeFile("./files/ah.json", JSON.stringify(CompiledData), "utf8", () => {
         console.log("Compiled download and processing Completed");
-        resolve()
+        resolve();
       });
     });
   });
@@ -326,6 +334,7 @@ async function getEnchants(desc) {
   ls = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
   ls.reverse();
   enchants = {
+    Growth:7,
     Cleave: 6,
     Critical: 7,
     Cubism: 6,
@@ -517,6 +526,26 @@ async function updateCycle() {
       console.log(`Prices update finished in ${statusData.lastPricesUpdate - startingTime}s`);
     });
   });
+}
+
+function nFormatter(num, digits) {
+  const lookup = [
+    { value: 1, symbol: "" },
+    { value: 1e3, symbol: "k" },
+    { value: 1e6, symbol: "M" },
+    { value: 1e9, symbol: "b" },
+    { value: 1e12, symbol: "T" },
+    { value: 1e15, symbol: "P" },
+    { value: 1e18, symbol: "E" },
+  ];
+  const rx = /\.0+$|(\.[0-9]*[1-9])0+$/;
+  var item = lookup
+    .slice()
+    .reverse()
+    .find(function (item) {
+      return num >= item.value;
+    });
+  return item ? (num / item.value).toFixed(digits).replace(rx, "$1") + item.symbol : "0";
 }
 
 setInterval(() => {
