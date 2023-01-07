@@ -38,16 +38,33 @@
         border-radius: 10px;
       }
 
-
-      .COMMON {color:#FFFFFF}
-      .UNCOMMON {color:#55FF55}
-      .RARE {color:#5555FF}
-      .EPIC {color:#8a048a}
-      .LEGENDARY {color:#FFAA00}
-      .MYTHIC {color:#ea00ff}
-      .DIVINE {color:#55FFFF}
-      .SPECIAL {color:#FF5555}
-      .VERYSPECIAL {color:#ff0000}
+      .COMMON {
+        color: #ffffff;
+      }
+      .UNCOMMON {
+        color: #55ff55;
+      }
+      .RARE {
+        color: #5555ff;
+      }
+      .EPIC {
+        color: #8a048a;
+      }
+      .LEGENDARY {
+        color: #ffaa00;
+      }
+      .MYTHIC {
+        color: #ea00ff;
+      }
+      .DIVINE {
+        color: #55ffff;
+      }
+      .SPECIAL {
+        color: #ff5555;
+      }
+      .VERYSPECIAL {
+        color: #ff0000;
+      }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.1/socket.io.js"></script>
     <script>
@@ -115,6 +132,9 @@
           minProfit: document.getElementById("minProfit").value,
           maxPrice: document.getElementById("maxPrice").value,
           sales: document.getElementById("sales").value,
+          rarity: document.getElementById("raritySelector").value,
+          category: document.getElementById("categorySelector").value,
+          Isdungeon: document.getElementById("dungeonSelector").value,
         };
       }
 
@@ -137,6 +157,24 @@
           }
         }
 
+        if (settings.category != "ALL") {
+          if (settings.category != obj.type) {
+            return false;
+          }
+        }
+
+        if (settings.rarity != "ALL") {
+          if (settings.rarity != obj.rarity) {
+            return false;
+          }
+        }
+
+        if (settings.Isdungeon != "ALL") {
+          isd = settings.Isdungeon == "YES" ? true : false;
+          if (obj.Isdungeon != isd) {
+            return false;
+          }
+        }
         return true;
       }
 
@@ -167,7 +205,9 @@
       }
 
       function getHtml(obj) {
-        html = `<div id="${obj.uuid}-item" style="margin:10px" ><div class="item" ><img crossorigin="anonymous" src="https://sky.coflnet.com/static/icon/${obj.key.split(":")[0].split(";")[0]}" height="24" alt="" loading="lazy" style="margin-right: 5px;"><h4>${obj.name}</h4>
+        html = `<div id="${obj.uuid}-item" style="margin:10px" ><div class="item" > <div style="display:flex; align-items:center;"><img crossorigin="anonymous" src="https://sky.coflnet.com/static/icon/${
+          obj.key.split(":")[0].split(";")[0]
+        }" height="24" alt="" loading="lazy" style="margin-right: 5px;"><h4>${obj.name}</h4></div>
 
       <label>Evaluated value: ${nFormatter(obj.evaluatedPrice, 1)}</label><br>
       <label>Listed price: ${nFormatter(obj.price, 1)}</label><br>
@@ -178,7 +218,7 @@
       <label>Price list:</label><br>
       <label>${obj.text.replaceAll("\n", "<br>")}</label><br><br>
 
-      <label class="${obj.rarity.toUpperCase().replace(" ","")}">Type: ${obj.rarity} ${obj.Isdungeon == true ? "DUNGEON" : ""}${obj.type}</label>
+      <label class="${obj.rarity.toUpperCase().replace(" ", "")}">Type: ${obj.rarity} ${obj.Isdungeon == true ? "DUNGEON" : ""}${obj.type}</label>
       <br>
       <br>
         </div>
@@ -195,8 +235,8 @@
       });
 
       socket.on("status", async (data) => {
-        if(data.progress) document.getElementById("progress").innerHTML =  data.progress;
-        if(data.lastUpdate) document.getElementById("lastUpdated").innerHTML =  data.lastUpdate;
+        if (data.progress) document.getElementById("progress").innerHTML = data.progress;
+        if (data.lastUpdate) document.getElementById("lastUpdated").innerHTML = data.lastUpdate;
       });
 
       function scan() {
@@ -210,13 +250,16 @@
         document.getElementById("sortSelector").addEventListener("change", display);
         document.getElementById("maxPrice").addEventListener("change", display);
         document.getElementById("sales").addEventListener("change", display);
+        document.getElementById("categorySelector").addEventListener("change", display);
+        document.getElementById("raritySelector").addEventListener("change", display);
+        document.getElementById("dungeonSelector").addEventListener("change", display);
       });
     </script>
   </head>
   <body>
     <h1>Flipper</h1>
     <button id="prices" onclick="prices()">Update prices</button><label id="lastUpdated"></label><br />
-    <br><br>
+    <br /><br />
     <button id="scan" onclick="scan()">Scan</button><label id="progress"></label><br />
     <label>Pages to scan: </label><input type="text" class="input" id="pages" />
     <h2>Settings</h2>
@@ -234,7 +277,54 @@
       <label>Min profit: </label><input type="text" class="input" id="minProfit" /><br />
       <label>Max price: </label><input type="text" class="input" id="maxPrice" /><br />
       <label>Min sales/day: </label><input type="text" class="input" id="sales" /><br /><br />
+
+      <label>Item category: </label>
+      <select id="categorySelector">
+        <option value="ALL">All</option>
+        <option value="SWORD">Sword</option>
+        <option value="FISHING ROD">Fishing rod</option>
+        <option value="AXE">Axe</option>
+        <option value="SHOVEL">Shovev</option>
+        <option value="PET ITEM">Pet item</option>
+        <option value="TRAVEL SCROLL">Travel scroll</option>
+        <option value="REFORGE STONE">Reforge stone</option>
+        <option value="BOW">Bow</option>
+        <option value="BELT">Belt</option>
+        <option value="HELMET">Helmet</option>
+        <option value="CHESTPLATE">Chesplate</option>
+        <option value="LEGGINGS">Leggings</option>
+        <option value="BOOTS">Boots</option>
+        <option value="GLOVES">Gloves</option>
+        <option value="PET ITEM">Pet item</option>
+        <option value="HOE">Hoe</option>
+        <option value="WAND">Wand</option>
+        <option value="ACCESSORY">Accessory</option>
+        <option value="COSMETIC">Cosmetic</option>
+        <option value="NECKLACE">Necklace</option>
+        <option value="UNKNOWN">UNKNOWN</option>
+      </select>
+      <br />
+      <label>Item rarity: </label>
+      <select id="raritySelector">
+        <option value="ALL">All</option>
+        <option value="COMMON">COMMON</option>
+        <option value="UNCOMMON">UNCOMMON</option>
+        <option value="RARE">RARE</option>
+        <option value="EPIC">EPIC</option>
+        <option value="LEGENDARY">LEGENDARY</option>
+        <option value="MYTHIC">MYTHIC</option>
+        <option value="SPECIAL">SPECIAL</option>
+        <option value="VERY SPECIAL">VERY SPECIAL"</option>
+        <option value="SUPREME">SUPREME</option>
+      </select>
+      <br /><label>Dungeon items:</label>
+      <select id="dungeonSelector">
+        <option value="ALL">All</option>
+        <option value="YES">Yes</option>
+        <option value="NO">No</option>
+      </select>
       <h2>Auctions</h2>
+      <label>Page 1</label>
       <div class="container" id="container" style="display: flex"></div>
     </div>
   </body>

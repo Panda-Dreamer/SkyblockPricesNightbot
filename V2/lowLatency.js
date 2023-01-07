@@ -501,7 +501,7 @@ async function checkItemType(lore) {
     Itemtype: "UNKNOWN",
     dungeon: false,
   };
-  typeMatches = ["SWORD", "FISHING ROD", "PICKAXE", "AXE", "SHOVEL", "PET ITEM", "TRAVEL SCROLL", "REFORGE STONE", "BOW", "BELT", "LEGGINGS", "CHESTPLATE", "HELMET", "BOOTS", "ITEM", "ACCESSORY", "GLOVES", "PET ITEM", "HOE", "WAND", "COSMETIC"];
+  typeMatches = ["SWORD", "FISHING ROD", "PICKAXE", "AXE", "SHOVEL", "PET ITEM", "TRAVEL SCROLL", "REFORGE STONE", "BOW", "BELT", "LEGGINGS", "CHESTPLATE", "HELMET", "BOOTS", "ITEM", "ACCESSORY", "GLOVES", "PET ITEM", "HOE", "WAND", "COSMETIC","NECKLACE"];
   rarityArr = ["COMMON", "UNCOMMON", "RARE", "EPIC", "LEGENDARY", "MYTHIC", "SPECIAL", "VERY SPECIAL", "SUPREME"];
   split = lore.split("\n");
   for (var li = split.length - 1; li > 0; li--) {
