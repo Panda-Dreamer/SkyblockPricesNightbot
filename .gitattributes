@@ -1,7 +1,5 @@
 # Auto detect text files and perform LF normalization
 * text=auto
-V2\files\ah.json
-bzar.json
-neu.json
-neu.json.gz
-status.json
+*.gz
+*.json
+*.txt
